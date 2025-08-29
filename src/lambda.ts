@@ -1,22 +1,20 @@
-// src/lambda.ts (extracto)
 import { Handler, Context } from 'aws-lambda';
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { ValidationPipe } from '@nestjs/common';
 import serverless from 'serverless-http';
 
-let cachedHandler: any = null;
+let cached: any = null;
 
-async function bootstrapServer() {
+async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
-  // 👇 Middleware: si el body llega como Buffer, parsearlo
+  // Parsear JSON si llega como Buffer/string (evita error del ValidationPipe)
   app.use((req: any, _res: any, next: any) => {
-    const ct = (req.headers?.['content-type'] || req.headers?.['Content-Type'] || '').toString();
-    if (ct.includes('application/json') && Buffer.isBuffer(req.body)) {
-      try { req.body = JSON.parse(req.body.toString('utf8')); } catch { /* ignore */ }
-    } else if (ct.includes('application/json') && typeof req.body === 'string') {
-      try { req.body = JSON.parse(req.body); } catch { /* ignore */ }
+    const ct = String(req.headers?.['content-type'] ?? req.headers?.['Content-Type'] ?? '');
+    if (ct.includes('application/json')) {
+      if (Buffer.isBuffer(req.body)) { try { req.body = JSON.parse(req.body.toString('utf8')); } catch {} }
+      else if (typeof req.body === 'string') { try { req.body = JSON.parse(req.body); } catch {} }
     }
     next();
   });
@@ -25,17 +23,12 @@ async function bootstrapServer() {
   await app.init();
 
   const expressApp = app.getHttpAdapter().getInstance();
-  return serverless(expressApp, {
-    // si mantienes stage "default", conserva este basePath (lo ya sugerido)
-    basePath: (req: any) => {
-      const stage = req?.requestContext?.stage;
-      return stage && stage !== '$default' ? `/${stage}` : '';
-    },
-  });
+  // SIN basePath: funciona perfecto si tu stage es $default
+  return serverless(expressApp);
 }
 
-export const handler: Handler = async (event, context, callback) => {
+export const handler: Handler = async (event, context: Context, callback) => {
   context.callbackWaitsForEmptyEventLoop = false;
-  if (!cachedHandler) cachedHandler = await bootstrapServer();
-  return cachedHandler(event, context, callback);
+  if (!cached) cached = await bootstrap();
+  return cached(event, context, callback);
 };
