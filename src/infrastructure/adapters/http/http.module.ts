@@ -1,4 +1,3 @@
-// src/infrastructure/adapters/http/http.module.ts
 import { Module, Provider } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { AxiosAdapter } from './axios.adapter';

@@ -11,14 +11,14 @@ import { JWT_SECRET, JWT_EXPIRES } from './jwt.config';
 @Module({
   imports: [
     MongooseModule.forFeature([{ name: User.name, schema: UserSchema }]),
-    PassportModule.register({ defaultStrategy: 'jwt' }), // 👈 activa passport-jwt
+    PassportModule.register({ defaultStrategy: 'jwt' }),
     JwtModule.register({
       secret: JWT_SECRET,
       signOptions: { expiresIn: JWT_EXPIRES },
     }),
   ],
   controllers: [AuthController],
-  providers: [AuthService, JwtStrategy], // 👈 registra la strategy
-  exports: [AuthService, JwtModule, PassportModule], // 👈 por si usas JwtService fuera
+  providers: [AuthService, JwtStrategy],
+  exports: [AuthService, JwtModule, PassportModule],
 })
 export class AuthModule {}

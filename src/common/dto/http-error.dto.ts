@@ -1,5 +1,3 @@
-// (opcional) estandarizar error para examples
-// src/common/dto/http-error.dto.ts
 import { ApiProperty } from '@nestjs/swagger';
 
 export class HttpErrorDto {

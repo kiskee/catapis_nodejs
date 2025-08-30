@@ -1,4 +1,3 @@
-// src/cats/cats.controller.ts
 import { Controller, Get, Param, Query } from '@nestjs/common';
 import {
   ApiBadRequestResponse,
@@ -16,7 +15,7 @@ import { Auth } from 'src/auth/decorators/auth.decorator';
 import { BreedDto } from '../dtos/breed.dto';
 
 @ApiTags('breeds')
-@Auth() // (si usas guard global, esto es opcional; lo dejo para que Swagger muestre el candado)
+@Auth()
 @ApiBearerAuth()
 @Controller('breeds')
 export class CatsController {
@@ -52,7 +51,7 @@ export class CatsController {
     return this.cats.listBreeds();
   }
 
-  // 👇 importante: search ANTES de :breed_id
+  //se puso el search antes de endpoint de busqueda por id ya que semanticamente entran en conflictos
   @Get('search')
   @ApiOperation({
     summary: 'Buscar razas',

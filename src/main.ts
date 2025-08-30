@@ -1,6 +1,6 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
-import { ValidationPipe, Logger, VersioningType } from '@nestjs/common';
+import { ValidationPipe, Logger } from '@nestjs/common';
 import helmet from 'helmet';
 import compression from 'compression';
 
@@ -9,7 +9,6 @@ async function bootstrap() {
     logger: ['error', 'warn', 'log'],
   });
 
-  // middlewares útiles
   app.use(helmet());
   app.use(compression());
   app.enableCors({ origin: '*', credentials: true });
@@ -24,13 +23,6 @@ async function bootstrap() {
     }),
   );
 
-  // versionado en la URL: /v1/..., /v2/... (opcional)
-  // app.enableVersioning({
-  //   type: VersioningType.URI,
-  //   defaultVersion: '1',
-  // });
-
-  // swagger solo en dev
   if ((process.env.NODE_ENV ?? 'development') !== 'production') {
     const { SwaggerModule, DocumentBuilder } = await import('@nestjs/swagger');
     const doc = new DocumentBuilder()
@@ -40,7 +32,6 @@ async function bootstrap() {
       .addBearerAuth()
       .build();
     const openapi = SwaggerModule.createDocument(app, doc);
-    // 👇 aquí queda directamente en /docs
     SwaggerModule.setup('docs', app, openapi);
   }
 

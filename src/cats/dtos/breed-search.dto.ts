@@ -1,4 +1,3 @@
-// src/cats/dto/breed-search.dto.ts
 import { ApiPropertyOptional } from '@nestjs/swagger';
 import { Transform } from 'class-transformer';
 import { IsIn, IsOptional, IsString } from 'class-validator';

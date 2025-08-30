@@ -1,11 +1,18 @@
-// src/cats/cats.service.ts
-import { Inject, Injectable, HttpException } from '@nestjs/common';
+import {
+  Inject,
+  Injectable,
+  Logger,
+  InternalServerErrorException,
+  BadRequestException,
+  NotFoundException,
+} from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { HTTP_ADAPTER } from 'src/infrastructure/adapters/http/http.module';
 import type { IHttpAdapter } from 'src/infrastructure/adapters/http/IHttpAdapter';
 
 @Injectable()
 export class CatsService {
+  private readonly logger = new Logger(CatsService.name);
   private readonly apiKey?: string;
 
   constructor(
@@ -16,19 +23,17 @@ export class CatsService {
     this.apiKey = key && key.trim() ? key : undefined;
   }
 
-  // ✅ Si no hay key -> undefined (no envía el header).
   private headers(): Record<string, string> | undefined {
-    if (!this.apiKey) return undefined;
-    return { 'x-api-key': this.apiKey };
+    return this.apiKey ? { 'x-api-key': this.apiKey } : undefined;
   }
 
   async listBreeds() {
     try {
       return await this.http.get('/breeds', { headers: this.headers() });
-    } catch (e: any) {
-      throw new HttpException(
-        e.message ?? 'Error fetching breeds',
-        e.status ?? 502,
+    } catch (error: any) {
+      this.logger.error(`Error listando razas: ${error.message}`);
+      throw new InternalServerErrorException(
+        'No se pudieron obtener las razas',
       );
     }
   }
@@ -39,14 +44,24 @@ export class CatsService {
         params: { q: breed_id },
         headers: this.headers(),
       });
-      const exact = Array.isArray(res)
-        ? res.find((b: any) => b.id === breed_id)
-        : null;
-      return exact ?? (Array.isArray(res) ? res[0] : res);
-    } catch (e: any) {
-      throw new HttpException(
-        e.message ?? 'Error fetching breed',
-        e.status ?? 502,
+
+      if (!Array.isArray(res) || res.length === 0) {
+        throw new NotFoundException(`Raza con id "${breed_id}" no encontrada`);
+      }
+
+      const exact = res.find((b: any) => b.id === breed_id);
+      return exact ?? res[0];
+    } catch (error: any) {
+      this.logger.error(
+        `Error obteniendo raza por id=${breed_id}: ${error.message}`,
+      );
+
+      if (error instanceof NotFoundException) {
+        throw error;
+      }
+
+      throw new InternalServerErrorException(
+        `No se pudo obtener la raza con id ${breed_id}`,
       );
     }
   }
@@ -57,11 +72,18 @@ export class CatsService {
         params: query,
         headers: this.headers(),
       });
-    } catch (e: any) {
-      throw new HttpException(
-        e.message ?? 'Error searching breeds',
-        e.status ?? 502,
+    } catch (error: any) {
+      this.logger.error(
+        `Error buscando razas con query=${JSON.stringify(query)}: ${
+          error.message
+        }`,
       );
+
+      if (error.response?.status === 400) {
+        throw new BadRequestException('Parámetros de búsqueda inválidos');
+      }
+
+      throw new InternalServerErrorException('No se pudo realizar la búsqueda');
     }
   }
 }

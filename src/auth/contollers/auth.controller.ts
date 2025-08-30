@@ -1,13 +1,19 @@
-// src/auth/auth.controller.ts
 import { Body, Controller, Post } from '@nestjs/common';
-import { ApiBadRequestResponse, ApiBody, ApiCreatedResponse, ApiOkResponse, ApiOperation, ApiTags, ApiUnauthorizedResponse } from '@nestjs/swagger';
+import {
+  ApiBadRequestResponse,
+  ApiBody,
+  ApiCreatedResponse,
+  ApiOkResponse,
+  ApiOperation,
+  ApiTags,
+  ApiUnauthorizedResponse,
+} from '@nestjs/swagger';
 import { AuthResponseDto } from '../dtos/auth-response.dto';
 import { LoginDto } from '../dtos/login.dto';
 import { RegisterDto } from '../dtos/register.dto';
 import { AuthService } from '../services/auth.service';
 import { HttpErrorDto } from 'src/common/dto/http-error.dto';
 import { Public } from '../decorators/public.decorator';
-
 
 @ApiTags('auth')
 @Controller('auth')
@@ -48,7 +54,7 @@ export class AuthController {
     },
   })
   async register(@Body() dto: RegisterDto): Promise<AuthResponseDto> {
-    return this.auth.register(dto);
+    return await this.auth.register(dto);
   }
 
   @Public()
@@ -88,6 +94,6 @@ export class AuthController {
     },
   })
   async login(@Body() dto: LoginDto): Promise<AuthResponseDto> {
-    return this.auth.login(dto);
+    return await this.auth.login(dto);
   }
 }

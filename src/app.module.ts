@@ -15,7 +15,7 @@ import { JwtAuthGuard } from './auth/guards/jwt-auth.guard';
     MongooseModule.forRootAsync({
       useFactory: (cs: ConfigService) => ({
         uri: cs.get<string>('MONGO_URI'),
-        dbName: 'catapis',  
+        dbName: 'catapis',
       }),
       inject: [ConfigService],
     }),

@@ -1,4 +1,3 @@
-// src/images/images.controller.ts
 import { Controller, Get, Query } from '@nestjs/common';
 import {
   ApiBadRequestResponse,
@@ -15,13 +14,12 @@ import { Auth } from 'src/auth/decorators/auth.decorator';
 import { ImageDto } from '../dtos/image.dto';
 
 @ApiTags('images')
-@Auth()            // protegido por JWT
-@ApiBearerAuth()   // muestra el candadito en Swagger
+@Auth()
+@ApiBearerAuth()
 @Controller()
 export class ImagesController {
   constructor(private readonly images: ImagesService) {}
 
-  // Requisito: GET /imagesbybreedid
   @Get('imagesbybreedid')
   @ApiOperation({
     summary: 'Imágenes por raza',
@@ -30,14 +28,28 @@ export class ImagesController {
       'Puedes paginar con "page" y "limit" (1-25). ' +
       'Usa "include_breeds=1" o "has_breeds=1" para traer metadata de la raza.',
   })
-  // (opcionales si prefieres verlos explícitos en Swagger además del DTO)
   @ApiQuery({ name: 'breed_id', example: 'abys', required: true })
   @ApiQuery({ name: 'limit', example: 5, required: false })
-  @ApiQuery({ name: 'size', enum: ['thumb', 'small', 'med', 'full'], required: false, example: 'med' })
+  @ApiQuery({
+    name: 'size',
+    enum: ['thumb', 'small', 'med', 'full'],
+    required: false,
+    example: 'med',
+  })
   @ApiQuery({ name: 'mime_types', example: 'jpg,png', required: false })
-  @ApiQuery({ name: 'order', enum: ['RANDOM', 'ASC', 'DESC'], required: false, example: 'RANDOM' })
+  @ApiQuery({
+    name: 'order',
+    enum: ['RANDOM', 'ASC', 'DESC'],
+    required: false,
+    example: 'RANDOM',
+  })
   @ApiQuery({ name: 'page', example: 0, required: false })
-  @ApiQuery({ name: 'include_breeds', enum: [0, 1], required: false, example: 1 })
+  @ApiQuery({
+    name: 'include_breeds',
+    enum: [0, 1],
+    required: false,
+    example: 1,
+  })
   @ApiQuery({ name: 'has_breeds', enum: [0, 1], required: false })
   @ApiOkResponse({
     description: 'Listado de imágenes',
@@ -67,7 +79,10 @@ export class ImagesController {
     schema: {
       example: {
         statusCode: 400,
-        message: ['breed_id must be a string', 'limit must be an integer number'],
+        message: [
+          'breed_id must be a string',
+          'limit must be an integer number',
+        ],
         error: 'Bad Request',
       },
     },
@@ -75,7 +90,11 @@ export class ImagesController {
   @ApiUnauthorizedResponse({
     description: 'Falta o es inválido el Bearer token',
     schema: {
-      example: { statusCode: 401, message: 'Unauthorized', error: 'Unauthorized' },
+      example: {
+        statusCode: 401,
+        message: 'Unauthorized',
+        error: 'Unauthorized',
+      },
     },
   })
   getByBreed(@Query() query: ImagesByBreedDto) {

@@ -1,8 +1,7 @@
-// src/auth/schemas/user.schema.ts
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document } from 'mongoose';
 
-@Schema({collection: 'users', timestamps: true })
+@Schema({ collection: 'users', timestamps: true })
 export class User extends Document {
   @Prop({ required: true, unique: true, lowercase: true, trim: true })
   email: string;

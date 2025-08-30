@@ -1,4 +1,3 @@
-// src/infrastructure/adapters/http/axios.adapter.ts
 import { Injectable, Logger } from '@nestjs/common';
 import axios, { AxiosError, AxiosInstance, AxiosRequestConfig } from 'axios';
 import type { IHttpAdapter, RequestOptions } from './IHttpAdapter';
@@ -6,7 +5,7 @@ import type { IHttpAdapter, RequestOptions } from './IHttpAdapter';
 interface AxiosAdapterOptions {
   baseURL?: string;
   timeoutMs?: number;
-  retries?: number;     // reintentos en 5xx / errores de red
+  retries?: number;
   retryDelayMs?: number;
   defaultHeaders?: Record<string, string>;
 }
@@ -32,20 +31,19 @@ export class AxiosAdapter implements IHttpAdapter {
       },
     });
 
-    // Interceptor de request (log corto)
     this.client.interceptors.request.use((config) => {
-      this.logger.debug(`HTTP ${config.method?.toUpperCase()} ${config.baseURL ?? ''}${config.url}`);
+      this.logger.debug(
+        `HTTP ${config.method?.toUpperCase()} ${config.baseURL ?? ''}${config.url}`,
+      );
       return config;
     });
 
-    // Interceptor de respuesta (log de status)
     this.client.interceptors.response.use(
       (res) => {
         this.logger.debug(`HTTP ${res.status} ${res.config.url}`);
         return res;
       },
       (error: AxiosError) => {
-        // No lances aquí; normalizamos más abajo en send()
         return Promise.reject(error);
       },
     );
@@ -71,10 +69,9 @@ export class AxiosAdapter implements IHttpAdapter {
     return this.send<T>({ method: 'DELETE', url, ...this.mapOpts(opts) });
   }
 
-  // -------- privados --------
   private async send<T>(config: AxiosRequestConfig): Promise<T> {
     let attempt = 0;
-    // eslint-disable-next-line no-constant-condition
+
     while (true) {
       try {
         const res = await this.client.request<T>(config);
@@ -84,14 +81,14 @@ export class AxiosAdapter implements IHttpAdapter {
         const status = err.response?.status;
         const shouldRetry =
           attempt < this.retries &&
-          (!status || (status >= 500 && status <= 599)); // red/5xx
+          (!status || (status >= 500 && status <= 599));
 
         if (!shouldRetry) {
           throw this.normalizeError(err);
         }
 
         attempt++;
-        await this.delay(this.retryDelayMs * attempt); // backoff lineal sencillo
+        await this.delay(this.retryDelayMs * attempt);
       }
     }
   }
@@ -120,7 +117,6 @@ export class AxiosAdapter implements IHttpAdapter {
         ? data
         : data?.message || data?.error || err.message || 'HTTP error';
 
-    // Puedes mapearlo a HttpException si prefieres propagarlo al controller.
     const normalized = new Error(`[${status}] ${method} ${url} -> ${msg}`);
     (normalized as any).status = status;
     (normalized as any).data = data;

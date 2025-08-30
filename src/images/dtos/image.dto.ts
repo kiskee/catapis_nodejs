@@ -1,4 +1,3 @@
-// src/images/dto/image.dto.ts
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 
 export class ImageBreedDto {
@@ -30,7 +29,6 @@ export class ImageDto {
   @ApiProperty({ example: 800 })
   height: number;
 
-  // Aparece si include_breeds=1 o has_breeds=1
   @ApiPropertyOptional({ type: [ImageBreedDto] })
   breeds?: ImageBreedDto[];
 }
