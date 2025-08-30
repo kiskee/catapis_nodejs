@@ -6,6 +6,7 @@ import { LoginDto } from '../dtos/login.dto';
 import { RegisterDto } from '../dtos/register.dto';
 import { AuthService } from '../services/auth.service';
 import { HttpErrorDto } from 'src/common/dto/http-error.dto';
+import { Public } from '../decorators/public.decorator';
 
 
 @ApiTags('auth')
@@ -13,6 +14,7 @@ import { HttpErrorDto } from 'src/common/dto/http-error.dto';
 export class AuthController {
   constructor(private readonly auth: AuthService) {}
 
+  @Public()
   @Post('register')
   @ApiOperation({ summary: 'Registrar un usuario con email y password' })
   @ApiBody({ type: RegisterDto })
@@ -49,6 +51,7 @@ export class AuthController {
     return this.auth.register(dto);
   }
 
+  @Public()
   @Post('login')
   @ApiOperation({ summary: 'Iniciar sesión con email y password' })
   @ApiBody({ type: LoginDto })

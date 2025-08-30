@@ -1,20 +1,24 @@
 import { Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
 import { JwtModule } from '@nestjs/jwt';
+import { PassportModule } from '@nestjs/passport';
 import { AuthController } from './contollers/auth.controller';
 import { AuthService } from './services/auth.service';
 import { User, UserSchema } from './shemas/user.schema';
+import { JwtStrategy } from './strategies/jwt.strategy';
+import { JWT_SECRET, JWT_EXPIRES } from './jwt.config';
 
 @Module({
   imports: [
     MongooseModule.forFeature([{ name: User.name, schema: UserSchema }]),
+    PassportModule.register({ defaultStrategy: 'jwt' }), // 👈 activa passport-jwt
     JwtModule.register({
-      secret: process.env.JWT_SECRET ?? 'dev-secret',
-      signOptions: { expiresIn: process.env.JWT_EXPIRES ?? '1d' },
+      secret: JWT_SECRET,
+      signOptions: { expiresIn: JWT_EXPIRES },
     }),
   ],
   controllers: [AuthController],
-  providers: [AuthService],
-  exports: [AuthService],
+  providers: [AuthService, JwtStrategy], // 👈 registra la strategy
+  exports: [AuthService, JwtModule, PassportModule], // 👈 por si usas JwtService fuera
 })
 export class AuthModule {}

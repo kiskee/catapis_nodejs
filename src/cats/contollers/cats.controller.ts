@@ -1,10 +1,12 @@
 // src/cats/cats.controller.ts
 import { Controller, Get, Param, Query } from '@nestjs/common';
-import { ApiTags, ApiQuery, ApiResponse } from '@nestjs/swagger';
+import { ApiTags, ApiResponse } from '@nestjs/swagger';
 import { CatsService } from '../services/cats.service';
 import { BreedSearchDto } from '../dtos/breed-search.dto';
+import { Auth } from 'src/auth/decorators/auth.decorator';
 
 @ApiTags('breeds')
+@Auth()
 @Controller('breeds')
 export class CatsController {
   constructor(private readonly cats: CatsService) {}
