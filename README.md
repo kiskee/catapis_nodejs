@@ -1,98 +1,184 @@
-<p align="center">
-  <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="120" alt="Nest Logo" /></a>
-</p>
+# 🐱 Cat API Gateway (NestJS + MongoDB + AWS Lambda)
 
-[circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
-[circleci-url]: https://circleci.com/gh/nestjs/nest
+Backend desarrollado en NestJS que funciona como gateway hacia TheCatAPI, con autenticación JWT, documentación en Swagger y despliegue en AWS Lambda + API Gateway.  
+Este README.md contiene toda la documentación completa: arquitectura, instalación, despliegue, variables, comandos y todos los endpoints documentados con ejemplos.
 
-  <p align="center">A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
-    <p align="center">
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="Package License" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/dm/@nestjs/common.svg" alt="NPM Downloads" /></a>
-<a href="https://circleci.com/gh/nestjs/nest" target="_blank"><img src="https://img.shields.io/circleci/build/github/nestjs/nest/master" alt="CircleCI" /></a>
-<a href="https://discord.gg/G7Qnnhy" target="_blank"><img src="https://img.shields.io/badge/discord-online-brightgreen.svg" alt="Discord"/></a>
-<a href="https://opencollective.com/nest#backer" target="_blank"><img src="https://opencollective.com/nest/backers/badge.svg" alt="Backers on Open Collective" /></a>
-<a href="https://opencollective.com/nest#sponsor" target="_blank"><img src="https://opencollective.com/nest/sponsors/badge.svg" alt="Sponsors on Open Collective" /></a>
-  <a href="https://paypal.me/kamilmysliwiec" target="_blank"><img src="https://img.shields.io/badge/Donate-PayPal-ff3f59.svg" alt="Donate us"/></a>
-    <a href="https://opencollective.com/nest#sponsor"  target="_blank"><img src="https://img.shields.io/badge/Support%20us-Open%20Collective-41B883.svg" alt="Support us"></a>
-  <a href="https://twitter.com/nestframework" target="_blank"><img src="https://img.shields.io/twitter/follow/nestframework.svg?style=social&label=Follow" alt="Follow us on Twitter"></a>
-</p>
-  <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
-  [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
+---
 
-## Description
+## 📋 Descripción
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
+La API provee:
 
-## Project setup
+- Registro y login de usuarios con JWT.  
+- Listado, búsqueda y detalle de razas de gatos.  
+- Búsqueda de imágenes de gatos filtradas por raza y otros parámetros.  
 
-```bash
-$ npm install
-```
+Toda la API (excepto `auth`) está protegida con JWT Bearer Token.
 
-## Compile and run the project
+---
 
-```bash
-# development
-$ npm run start
+## 🏗️ Arquitectura y buenas prácticas
 
-# watch mode
-$ npm run start:dev
+- NestJS modular: módulos AuthModule, CatsModule, ImagesModule.  
+- Adapter Pattern: IHttpAdapter para desacoplar el cliente HTTP.  
+- JWT Strategy (Passport): protección de endpoints.  
+- Decoradores personalizados:  
+  - @Public() → permite acceso sin token.  
+  - @Auth() → exige token JWT y documenta en Swagger.  
+- DTOs + ValidationPipe: validación con class-validator y transformación con class-transformer.  
+- Errores controlados: try/catch con HttpException.  
+- Seguridad:  
+  - Contraseñas con bcrypt.  
+  - JWT firmado con secret configurable.  
+  - Middleware de seguridad (helmet, compression).  
 
-# production mode
-$ npm run start:prod
-```
+---
 
-## Run tests
+## ⚙️ Variables de entorno
 
-```bash
-# unit tests
-$ npm run test
+Ejemplo de `.env`:
 
-# e2e tests
-$ npm run test:e2e
+MONGO_URI=mongodb+srv://.../catapis  
+JWT_SECRET=super-secreto  
+JWT_EXPIRES=1d  
+HTTP_BASE_URL=https://api.thecatapi.com/v1  
+CAT_API_KEY=<opcional>  
+PORT=3000  
+NODE_ENV=development  
 
-# test coverage
-$ npm run test:cov
-```
+---
 
-## Deployment
+## 🚀 Ejecución local
 
-When you're ready to deploy your NestJS application to production, there are some key steps you can take to ensure it runs as efficiently as possible. Check out the [deployment documentation](https://docs.nestjs.com/deployment) for more information.
+npm install  
+npm run start:dev  
+Swagger disponible en: http://localhost:3000/docs  
 
-If you are looking for a cloud-based platform to deploy your NestJS application, check out [Mau](https://mau.nestjs.com), our official platform for deploying NestJS applications on AWS. Mau makes deployment straightforward and fast, requiring just a few simple steps:
+---
 
-```bash
-$ npm install -g @nestjs/mau
-$ mau deploy
-```
+## 🐳 Docker
 
-With Mau, you can deploy your application in just a few clicks, allowing you to focus on building features rather than managing infrastructure.
+docker build -t catapis_nodejs:latest .  
+docker run -p 3000:3000 --env-file .env catapis_nodejs:latest  
 
-## Resources
+---
 
-Check out a few resources that may come in handy when working with NestJS:
+## ☁️ Despliegue AWS
 
-- Visit the [NestJS Documentation](https://docs.nestjs.com) to learn more about the framework.
-- For questions and support, please visit our [Discord channel](https://discord.gg/G7Qnnhy).
-- To dive deeper and get more hands-on experience, check out our official video [courses](https://courses.nestjs.com/).
-- Deploy your application to AWS with the help of [NestJS Mau](https://mau.nestjs.com) in just a few clicks.
-- Visualize your application graph and interact with the NestJS application in real-time using [NestJS Devtools](https://devtools.nestjs.com).
-- Need help with your project (part-time to full-time)? Check out our official [enterprise support](https://enterprise.nestjs.com).
-- To stay in the loop and get updates, follow us on [X](https://x.com/nestframework) and [LinkedIn](https://linkedin.com/company/nestjs).
-- Looking for a job, or have a job to offer? Check out our official [Jobs board](https://jobs.nestjs.com).
+1. Subir la imagen a ECR:  
 
-## Support
+aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin <account>.dkr.ecr.us-east-1.amazonaws.com  
+docker tag catapis_nodejs:latest <account>.dkr.ecr.us-east-1.amazonaws.com/catapis_nodejs:latest  
+docker push <account>.dkr.ecr.us-east-1.amazonaws.com/catapis_nodejs:latest  
 
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
+2. Crear función Lambda desde la imagen.  
+3. Conectar un API Gateway (HTTP API).  
+4. Usar el stage $default para URLs limpias.  
 
-## Stay in touch
+---
 
-- Author - [Kamil Myśliwiec](https://twitter.com/kammysliwiec)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
+## 🔑 Autenticación JWT
 
-## License
+1. Regístrate o haz login para obtener el accessToken.  
+2. En cada request protegido envía:  
 
-Nest is [MIT licensed](https://github.com/nestjs/nest/blob/master/LICENSE).
+Authorization: Bearer <token>  
+
+3. En Swagger, usa Authorize y pega el token.  
+
+---
+
+## 🧾 Errores
+
+Ejemplo:
+
+{  
+  "statusCode": 400,  
+  "message": ["email must be an email"],  
+  "error": "Bad Request"  
+}  
+
+- 400: Validación fallida / email duplicado.  
+- 401: Token faltante o inválido.  
+- 404: Recurso no encontrado.  
+- 502: Error externo (TheCatAPI).  
+
+---
+
+## 📖 Documentación Swagger
+
+- Local: http://localhost:3000/docs  
+- AWS (stage $default): https://<api-id>.execute-api.<region>.amazonaws.com/docs  
+
+---
+
+## 🌐 Endpoints
+
+### Auth (público)
+
+POST /auth/register  
+Body: { "email": "user@example.com", "password": "MiClaveSegura123" }  
+201 Created: devuelve usuario + accessToken  
+400: Email ya registrado  
+
+POST /auth/login  
+Body: { "email": "user@example.com", "password": "MiClaveSegura123" }  
+200 OK: devuelve usuario + accessToken  
+401: Credenciales inválidas  
+
+---
+
+### Breeds (JWT requerido)
+
+GET /breeds  
+→ Lista todas las razas  
+
+GET /breeds/search?q=sib&attach_image=1  
+→ Busca razas por query  
+
+GET /breeds/:breed_id  
+→ Obtiene detalle de una raza  
+
+---
+
+### Images (JWT requerido)
+
+GET /imagesbybreedid  
+Query params:  
+- breed_id (requerido)  
+- limit (default=5, max=25)  
+- size (thumb|small|med|full)  
+- order (RANDOM|ASC|DESC)  
+- mime_types (opcional)  
+- page, include_breeds, has_breeds  
+
+Ejemplo: /imagesbybreedid?breed_id=abys&limit=2&include_breeds=1  
+
+---
+
+## 📌 Resumen de endpoints
+
+Auth:  
+- POST /auth/register  
+- POST /auth/login  
+
+Breeds:  
+- GET /breeds  
+- GET /breeds/search  
+- GET /breeds/:breed_id  
+
+Images:  
+- GET /imagesbybreedid  
+
+---
+
+## ✅ Próximos pasos
+
+- Agregar cache con Redis.  
+- Tests unitarios con Jest.  
+- CI/CD con GitHub Actions.  
+- Roles y permisos en JWT.  
+
+---
+
+✍️ Proyecto desarrollado aplicando NestJS, MongoDB, SOLID, Clean Architecture, JWT y desplegado en AWS Lambda.
