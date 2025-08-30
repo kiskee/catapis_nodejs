@@ -1,5 +1,3 @@
-// cats.service.spec.ts
-// ⚠️ Ajusta rutas si difieren
 import { Test, TestingModule } from '@nestjs/testing';
 import {
   BadRequestException,
@@ -8,14 +6,16 @@ import {
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 
-// 👉 Mock virtual del alias para evitar resolver 'src/...'
-jest.mock('src/infrastructure/adapters/http/http.module', () => ({
-  HTTP_ADAPTER: 'HTTP_ADAPTER', // el token que usará el servicio
-}), { virtual: true });
+jest.mock(
+  'src/infrastructure/adapters/http/http.module',
+  () => ({
+    HTTP_ADAPTER: 'HTTP_ADAPTER',
+  }),
+  { virtual: true },
+);
 
-// ahora sí importamos el token desde el alias mockeado
 import { HTTP_ADAPTER } from 'src/infrastructure/adapters/http/http.module';
-// import del servicio (ruta relativa normal a tu repo)
+
 import { CatsService } from '../../../src/cats/services/cats.service';
 
 describe('CatsService', () => {
@@ -39,7 +39,7 @@ describe('CatsService', () => {
   }
 
   beforeEach(async () => {
-    await buildModule('test-key'); // por defecto con apiKey
+    await buildModule('test-key');
   });
 
   afterEach(() => jest.clearAllMocks());
@@ -58,7 +58,7 @@ describe('CatsService', () => {
     });
 
     it('sin apiKey no envía headers', async () => {
-      await buildModule('   '); // quedará undefined tras trim
+      await buildModule('   ');
       const data = [{ id: 'abys' }];
       http.get.mockResolvedValue(data);
 
@@ -166,7 +166,10 @@ describe('CatsService', () => {
       const loggerSpy = jest
         .spyOn((service as any).logger, 'error')
         .mockImplementation(() => {});
-      http.get.mockRejectedValue({ response: { status: 500 }, message: 'oops' });
+      http.get.mockRejectedValue({
+        response: { status: 500 },
+        message: 'oops',
+      });
 
       await expect(service.searchBreeds(query)).rejects.toBeInstanceOf(
         InternalServerErrorException,

@@ -12,7 +12,6 @@ describe('JwtAuthGuard', () => {
     const handler = () => {};
     class DummyController {}
     return {
-      // solo lo que usa el guard + mocks vacíos para el resto
       getHandler: jest.fn(() => handler),
       getClass: jest.fn(() => DummyController),
       switchToHttp: jest.fn() as any,
@@ -42,7 +41,6 @@ describe('JwtAuthGuard', () => {
     reflector.getAllAndOverride.mockReturnValue(true);
     const ctx = makeCtx();
 
-    // spy sobre el canActivate del padre (AuthGuard('jwt'))
     const parentProto = Object.getPrototypeOf(Object.getPrototypeOf(guard));
     const superSpy = jest.spyOn(parentProto, 'canActivate');
 

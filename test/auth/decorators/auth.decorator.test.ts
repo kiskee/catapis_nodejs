@@ -1,16 +1,13 @@
-// auth.decorator.spec.ts
 import 'reflect-metadata';
 import { GUARDS_METADATA } from '@nestjs/common/constants';
 import { JwtAuthGuard } from '../../../src/auth/guards/jwt-auth.guard';
 import { Auth } from '../../../src/auth/decorators/auth.decorator';
 
-// Mock de @nestjs/swagger para espiar ApiBearerAuth()
 jest.mock('@nestjs/swagger', () => ({
   ApiBearerAuth: jest.fn(),
 }));
 import { ApiBearerAuth } from '@nestjs/swagger';
 
-// helper para leer metadata en método (target+key o descriptor.value)
 function getMethodMeta(key: string, target: any, propertyKey: string) {
   return (
     Reflect.getMetadata(key, target, propertyKey) ??
@@ -48,7 +45,6 @@ describe('@Auth decorator', () => {
     expect(ApiBearerAuth).toHaveBeenCalledTimes(1);
     expect(swaggerDecorator).toHaveBeenCalledTimes(1);
 
-    // lee metadata desde target+key o desde descriptor.value
     const guards = getMethodMeta(GUARDS_METADATA, Ctrl.prototype, 'list');
     expect(guards).toBeDefined();
     expect(guards).toEqual(expect.arrayContaining([JwtAuthGuard]));

@@ -16,14 +16,13 @@ function buildUserModelMock() {
 
   Ctor.prototype.save = jest.fn();
 
-  // estáticos
   Ctor.findOne = jest.fn();
   Ctor.create = jest.fn();
-  Ctor.exists = jest.fn(); // <-- agrega esto
+  Ctor.exists = jest.fn();
 
   return Ctor;
 }
-// mockea bcrypt completo
+
 jest.mock('bcrypt', () => ({
   __esModule: true,
   hash: jest.fn(),
@@ -32,7 +31,7 @@ jest.mock('bcrypt', () => ({
 
 describe('AuthService', () => {
   let service: AuthService;
-  let UserModel: any; // el “constructor” mockeado
+  let UserModel: any;
   let jwt: { signAsync: jest.Mock };
 
   beforeEach(async () => {
@@ -111,7 +110,6 @@ describe('AuthService', () => {
     });
 
     it('debe lanzar BadRequestException si el email ya está registrado (y loguear el error)', async () => {
-      // logger spy (inyecta si no existe)
       if (!(service as any).logger)
         (service as any).logger = { error: jest.fn() };
       const loggerSpy = jest
@@ -131,7 +129,7 @@ describe('AuthService', () => {
       expect(existsSpy).toHaveBeenCalledWith({ email: mockRegisterDto.email });
       expect(hashSpy).not.toHaveBeenCalled();
       expect(createSpy).not.toHaveBeenCalled();
-      expect(loggerSpy).toHaveBeenCalled(); // mensaje se arma dentro del catch
+      expect(loggerSpy).toHaveBeenCalled();
       const loggedMsg = (loggerSpy.mock.calls[0]?.[0] as string) ?? '';
       expect(loggedMsg).toContain('register');
       expect(loggedMsg).toContain(mockRegisterDto.email);

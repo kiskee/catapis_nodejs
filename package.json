@@ -98,7 +98,8 @@
       "!src/**/*.spec.ts",
       "!src/**/*.test.ts",
       "!src/main.ts",
-      "!src/**/index.ts"
+      "!src/**/index.ts",
+      "!src/**/*.module.ts"
     ],
     "coveragePathIgnorePatterns": [
       "/node_modules/",
