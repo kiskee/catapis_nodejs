@@ -12,8 +12,8 @@ import { AuthResponseDto } from '../dtos/auth-response.dto';
 import { LoginDto } from '../dtos/login.dto';
 import { RegisterDto } from '../dtos/register.dto';
 import { AuthService } from '../services/auth.service';
-import { HttpErrorDto } from '../../../src/common/dto/http-error.dto';
 import { Public } from '../decorators/public.decorator';
+import { HttpErrorDto } from 'src/common/dto/http-error.dto';
 
 @ApiTags('auth')
 @Controller('auth')
